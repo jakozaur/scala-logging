@@ -29,7 +29,7 @@ private object LoggerMacro {
   def errorMessage(c: LoggerContext)(message: c.Expr[String]) = {
     import c.universe._
     val underlying = q"${c.prefix}.underlying"
-    q"if ($underlying.isErrorEnabled) $underlying.error($message)"
+    q"""if ($underlying.isErrorEnabled) try { $underlying.error($message) } catch { case e: Exception => $underlying.error("Error while logging", e); }"""
   }
 
   def errorMessageCause(c: LoggerContext)(message: c.Expr[String], cause: c.Expr[Throwable]) = {

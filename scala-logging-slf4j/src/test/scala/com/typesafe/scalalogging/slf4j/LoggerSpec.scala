@@ -42,6 +42,14 @@ class LoggerSpec extends WordSpec with ShouldMatchers with MockitoSugar {
       logger.error("error")
       verify(underlying, never).error(anyString)
     }
+    "catches exceptions thrown during log generation" in {
+      val underlying = mock[org.slf4j.Logger]
+      val logger = Logger(underlying)
+      when(underlying.isErrorEnabled).thenReturn(true)
+      val exception = new Exception()
+      logger.error(s"exception ${throw exception}")
+      verify(underlying).error("Error while logging", exception)
+    }
   }
 
   "Calling error with a message and cause" should {
